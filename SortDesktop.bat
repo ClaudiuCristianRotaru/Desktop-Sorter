@@ -1,0 +1,2 @@
+python desktopsort.py
+pause
