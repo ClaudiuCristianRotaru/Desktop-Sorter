@@ -1,29 +1,8 @@
 import os
 from os import walk
 import shutil
-
-class SortedFolder:
-    def __init__(self, name, associated_types):
-        self.name = name
-        self.associated_types = associated_types
-
-class FileInfo:
-    def __init__(self, name, extension, is_folder):
-        self.name = name
-        self.extension = extension
-        self.is_folder = is_folder
-
-    def get_full_name(self):
-        if(self.is_folder):
-            return self.name
-        else:
-            return self.name+self.extension
-    
-    def get_extension(self):
-        if(self.is_folder):
-            return ""
-        else:
-            return self.extension
+import classes.FileInfo as FileInfo
+import classes.SortedFolder as SortedFolder
 
 def get_sort_output_folders():
     sorted_folders = []
