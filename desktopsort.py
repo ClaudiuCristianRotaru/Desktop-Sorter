@@ -18,11 +18,17 @@ class FileInfo:
             return self.name
         else:
             return self.name+self.extension
+    
+    def get_extension(self):
+        if(self.is_folder):
+            return ""
+        else:
+            return self.extension
 
-def get_sorted_folders():
+def get_sort_output_folders():
     sorted_folders = []
     sorted_folders.append(SortedFolder("Games", [".exe"]))
-    sorted_folders.append(SortedFolder("Files", [".txt", ".pdf", ".html", "*"]))
+    sorted_folders.append(SortedFolder("Files", [".txt", ".pdf", ".html"]))
     sorted_folders.append(SortedFolder("Images", [".png", ".jpg", ".webp", ""]))
     return sorted_folders
 
@@ -60,10 +66,29 @@ def create_output_folders(path, folders):
             print(f"Creating folder {folder.name}")
             os.mkdir(path+"\\"+folder.name)
     print()
+    
+def isFileDuplicate(full_path, is_dir):
+    if(is_dir == True):
+        return os.path.isdir(full_path)
+    else:
+        return os.path.isfile(full_path)
+    
+def generate_unique_name(path,file,folder):
+    new_name = file.name
+    index = 1
+    while(isFileDuplicate(f"{path}\\{folder.name}\\{new_name}{file.get_extension()}",file.is_folder) == True):
+        print(folder.name + "\\" + new_name + " already exists!")
+        print("Renaming...")
+        new_name = file.name + str(index)
+        index += 1
+    if(new_name!=file.name):
+        print(f"Renamed {file.get_full_name()} to {new_name}{file.get_extension()}")
+    return new_name
 
 def move_file(path, file, folder):
     print(f"Trying to move '{file.get_full_name()}' to '{folder.name}'...\n")
-    shutil.move(path + '\\' + file.get_full_name(), path + "\\" + folder.name + '\\' + file.get_full_name())
+    new_name = generate_unique_name(path,file,folder)
+    shutil.move(path + '\\' + file.get_full_name(), path + "\\" + folder.name + '\\' + new_name+ file.get_extension())
 
 def sort_files(path, files, folders):
     for file in files:
@@ -80,7 +105,7 @@ def sort_files(path, files, folders):
 def main(): 
     # path = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
     path = '..\\ExampleDesktop'
-    output_folders = get_sorted_folders()
+    output_folders = get_sort_output_folders()
     input_files = get_sorting_files(path)
     create_output_folders(path, output_folders)
     input_files = exclude_sorting_files(input_files,output_folders)
@@ -88,62 +113,3 @@ def main():
   
 if __name__=="__main__": 
     main() 
-
-
-
-
-
-
-# # Get desktop path (tested only for Windows)
-# DESKTOP_PATH = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
-# # Don't try to move these files
-# NONO_FILES = ["desktop.ini", "SortDesktop.lnk"]
-# SORTING_FOLDERS = ["Games", "Images", "Programs", "Files"]
-# folders = []
-# files = []
-# for (dirpath, dirnames, filenames) in walk(DESKTOP_PATH):
-#     files.extend(filenames)
-#     folders.extend(dirnames)
-#     break
-
-# for nono_file in NONO_FILES:
-#     files.remove(nono_file)
-
-# for sorting_folder in SORTING_FOLDERS:
-#     folders.remove(sorting_folder)
-
-# print(files)
-# print(folders)
-
-# VALID_IMAGES_EXTENSIONS = ("png", "jpg", "jpeg", "mp4", "avif", "webp", "gif", "ico", "jfif")
-# VALID_FILES_EXTENSIONS = ("exe", "lnk")
-
-# for file in files:
-#     if(file.lower().endswith(VALID_IMAGES_EXTENSIONS)):
-#         print("Trying to move image " + DESKTOP_PATH + file )
-#         orig_file = file
-#         while(os.path.isfile(DESKTOP_PATH + "Images/" + file)):
-#             print(DESKTOP_PATH + "Images/" + file + " already exists!")
-#             print("Renaming...")
-#             file = "1" + file
-#         print("Moving...")
-#         shutil.move(DESKTOP_PATH + orig_file, DESKTOP_PATH + "Images/" + file)
-#     elif(file.lower().endswith(VALID_FILES_EXTENSIONS)):
-#         print("Trying to move program " + DESKTOP_PATH + file )
-#         print("Moving...")
-#         shutil.move(DESKTOP_PATH + file, DESKTOP_PATH + "Programs/" + file)
-#     else:
-#         print("Trying to move file " + DESKTOP_PATH + file )
-#         print("Moving...")
-#         shutil.move(DESKTOP_PATH + file, DESKTOP_PATH + "Files/" + file)
-#     print("----------------------------------------------")
-    
-# for folder in folders:
-#     print("Trying to move file folder " + DESKTOP_PATH + folder )
-#     orig_folder = folder
-#     while(os.path.isdir(DESKTOP_PATH + "Files/" + folder)):
-#             print(DESKTOP_PATH + "Files/" + folder + " already exists!")
-#             print("Renaming...")
-#             folder = "1" + folder
-#     print("Moving...")
-#     shutil.move(DESKTOP_PATH + orig_folder, DESKTOP_PATH + "Files/" + folder)
