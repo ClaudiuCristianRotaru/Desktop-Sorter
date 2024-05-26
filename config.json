@@ -13,7 +13,7 @@
 {
     "name": "Folders",
     "associated_types": [
-        "*"
+        "*", ".txt"
     ]
 }
 ]
