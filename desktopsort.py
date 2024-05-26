@@ -3,14 +3,7 @@ from os import walk
 import shutil
 from classes.FileInfo import FileInfo
 from classes.SortedFolder import SortedFolder
-
-
-def get_sorting_output_folders() -> list[SortedFolder]:
-    sorted_folders: list[SortedFolder] = []
-    sorted_folders.append(SortedFolder("Games", [".exe"]))
-    sorted_folders.append(SortedFolder("Files", [".txt", ".pdf", ".html", "*"]))
-    sorted_folders.append(SortedFolder("Images", [".png", ".jpg", ".webp", ""]))
-    return sorted_folders
+import json
 
 
 def get_sorting_input_files(path: str) -> list[FileInfo]:
@@ -41,7 +34,7 @@ def exclude_sorting_files(
     for file in files:
         found: bool = False
         for excluded_file in excluded_files:
-            if excluded_file.name == file.name:
+            if excluded_file.name == file.get_full_name():
                 found = True
         if not found:
             accepted_files.append(file)
@@ -101,15 +94,40 @@ def sort_files(path: str, files: list[FileInfo], folders: list[SortedFolder]) ->
             print("-------------------------\n")
 
 
+def load_config_from_file(path: str) -> str:
+    with open(path, "r") as file:
+        return file.read()
+
+
+def deserialize_config_json(json_data_dict: dict) -> list[SortedFolder]:
+    sorted_folders: list[SortedFolder] = []
+    for folder in json_data_dict:
+        dir: SortedFolder = SortedFolder("", [])
+
+        dir.name = folder["name"]
+
+        associated_types = folder["associated_types"]
+        for type in associated_types:
+            dir.associated_types.append(type)
+
+        sorted_folders.append(dir)
+    return sorted_folders
+
+
 def main() -> None:
     # path = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
     path: str = "..\\ExampleDesktop"
+
     output_folders: SortedFolder = []
-    output_folders = get_sorting_output_folders()
+    json_data_string = load_config_from_file("./config.json")
+    json_data = json.loads(json_data_string)
+    output_folders = deserialize_config_json(json_data)
     create_output_folders(path, output_folders)
+
     input_files: FileInfo = []
     input_files = get_sorting_input_files(path)
     input_files = exclude_sorting_files(input_files, output_folders)
+
     sort_files(path, input_files, output_folders)
 
 
