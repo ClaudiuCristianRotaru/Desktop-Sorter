@@ -1,57 +1,117 @@
 import os
 from os import walk
 import shutil
+from classes.FileInfo import FileInfo
+from classes.SortedFolder import SortedFolder
 
-# Get desktop path (tested only for Windows)
-DESKTOP_PATH = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
-# Don't try to move these files
-NONO_FILES = ["desktop.ini", "SortDesktop.lnk"]
-SORTING_FOLDERS = ["Games", "Images", "Programs", "Files"]
-folders = []
-files = []
-for (dirpath, dirnames, filenames) in walk(DESKTOP_PATH):
-    files.extend(filenames)
-    folders.extend(dirnames)
-    break
 
-for nono_file in NONO_FILES:
-    files.remove(nono_file)
+def get_sorting_output_folders() -> list[SortedFolder]:
+    sorted_folders: list[SortedFolder] = []
+    sorted_folders.append(SortedFolder("Games", [".exe"]))
+    sorted_folders.append(SortedFolder("Files", [".txt", ".pdf", ".html", "*"]))
+    sorted_folders.append(SortedFolder("Images", [".png", ".jpg", ".webp", ""]))
+    return sorted_folders
 
-for sorting_folder in SORTING_FOLDERS:
-    folders.remove(sorting_folder)
 
-print(files)
-print(folders)
+def get_sorting_input_files(path: str) -> list[FileInfo]:
+    input_files: list[FileInfo] = []
+    for dirpath, dirnames, filenames in walk(path):
+        for file_full_name in filenames:
+            extension_index: int = file_full_name.rfind(".")
+            if extension_index != -1:
+                file_name: str = file_full_name[0:extension_index]
+                file_extension: str = file_full_name[extension_index:]
+                file = FileInfo(file_name, file_extension, False)
+            else:
+                file = FileInfo(file_full_name, "", False)
+            input_files.append(file)
 
-VALID_IMAGES_EXTENSIONS = ("png", "jpg", "jpeg", "mp4", "avif", "webp", "gif", "ico", "jfif")
-VALID_FILES_EXTENSIONS = ("exe", "lnk")
+        for dir_name in dirnames:
+            file = FileInfo(dir_name, "*", True)
+            input_files.append(file)
+        break
+    return input_files
 
-for file in files:
-    if(file.lower().endswith(VALID_IMAGES_EXTENSIONS)):
-        print("Trying to move image " + DESKTOP_PATH + file )
-        orig_file = file
-        while(os.path.isfile(DESKTOP_PATH + "Images/" + file)):
-            print(DESKTOP_PATH + "Images/" + file + " already exists!")
-            print("Renaming...")
-            file = "1" + file
-        print("Moving...")
-        shutil.move(DESKTOP_PATH + orig_file, DESKTOP_PATH + "Images/" + file)
-    elif(file.lower().endswith(VALID_FILES_EXTENSIONS)):
-        print("Trying to move program " + DESKTOP_PATH + file )
-        print("Moving...")
-        shutil.move(DESKTOP_PATH + file, DESKTOP_PATH + "Programs/" + file)
-    else:
-        print("Trying to move file " + DESKTOP_PATH + file )
-        print("Moving...")
-        shutil.move(DESKTOP_PATH + file, DESKTOP_PATH + "Files/" + file)
-    print("----------------------------------------------")
-    
-for folder in folders:
-    print("Trying to move file folder " + DESKTOP_PATH + folder )
-    orig_folder = folder
-    while(os.path.isdir(DESKTOP_PATH + "Files/" + folder)):
-            print(DESKTOP_PATH + "Files/" + folder + " already exists!")
-            print("Renaming...")
-            folder = "1" + folder
-    print("Moving...")
-    shutil.move(DESKTOP_PATH + orig_folder, DESKTOP_PATH + "Files/" + folder)
+
+def exclude_sorting_files(
+    files: FileInfo, excluded_files: FileInfo | SortedFolder
+) -> list[FileInfo]:
+    accepted_files: list[FileInfo] = []
+    file: FileInfo
+    for file in files:
+        found: bool = False
+        for excluded_file in excluded_files:
+            if excluded_file.name == file.name:
+                found = True
+        if not found:
+            accepted_files.append(file)
+    return accepted_files
+
+
+def create_output_folders(path: str, folders: list[SortedFolder]) -> None:
+    for folder in folders:
+        if not os.path.isdir(f"{path}\\{folder.name}"):
+            print(f"Creating folder '{folder.name}'")
+            os.mkdir(f"{path}\\{folder.name}")
+    print()
+
+
+def doesFileExist(full_path: str) -> bool:
+    return os.path.isdir(full_path) or os.path.isfile(full_path)
+
+
+def generate_unique_name(path: str, file: FileInfo, folder: SortedFolder) -> str:
+    new_name: str = file.name
+    index: int = 1
+    while (
+        doesFileExist(f"{path}\\{folder.name}\\{new_name}{file.get_extension()}")
+        is True
+    ):
+        print(f"'{folder.name}\\{new_name}' already exists!")
+        print("Renaming...")
+        new_name = file.name + str(index)
+        index += 1
+    if new_name != file.name:
+        print(f"Renamed '{file.get_full_name()}' to '{new_name}{file.get_extension()}'")
+    print("-------------------------\n")
+    return new_name
+
+
+def move_file(path: str, file: FileInfo, folder: SortedFolder) -> None:
+    print(f"Trying to move '{file.get_full_name()}' to '{folder.name}'...\n")
+    new_name: str = generate_unique_name(path, file, folder)
+    shutil.move(
+        f"{path}\\{file.get_full_name()}",
+        f"{path}\\{folder.name}\\{new_name}{file.get_extension()}",
+    )
+
+
+def sort_files(path: str, files: list[FileInfo], folders: list[SortedFolder]) -> None:
+    for file in files:
+        found: bool = False
+        for folder in folders:
+            if file.extension in folder.associated_types:
+                found = True
+                move_file(path, file, folder)
+                break
+        if not found:
+            print(
+                f"No suitable folder found for '{file.name}' of type {file.extension}"
+            )
+            print("-------------------------\n")
+
+
+def main() -> None:
+    # path = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
+    path: str = "..\\ExampleDesktop"
+    output_folders: SortedFolder = []
+    output_folders = get_sorting_output_folders()
+    create_output_folders(path, output_folders)
+    input_files: FileInfo = []
+    input_files = get_sorting_input_files(path)
+    input_files = exclude_sorting_files(input_files, output_folders)
+    sort_files(path, input_files, output_folders)
+
+
+if __name__ == "__main__":
+    main()
