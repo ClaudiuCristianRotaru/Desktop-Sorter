@@ -1,41 +1,45 @@
 import os
 from os import walk
 import shutil
-import classes.FileInfo as FileInfo
-import classes.SortedFolder as SortedFolder
+from classes.FileInfo import FileInfo
+from classes.SortedFolder import SortedFolder
 
 
-def get_sort_output_folders():
-    sorted_folders = []
+def get_sorting_output_folders() -> list[SortedFolder]:
+    sorted_folders: list[SortedFolder] = []
     sorted_folders.append(SortedFolder("Games", [".exe"]))
     sorted_folders.append(SortedFolder("Files", [".txt", ".pdf", ".html", "*"]))
     sorted_folders.append(SortedFolder("Images", [".png", ".jpg", ".webp", ""]))
     return sorted_folders
 
 
-def get_sorting_files(path):
-    files = []
+def get_sorting_input_files(path: str) -> list[FileInfo]:
+    input_files: list[FileInfo] = []
     for dirpath, dirnames, filenames in walk(path):
-        for file_name in filenames:
-            extension_index = file_name.rfind(".")
+        for file_full_name in filenames:
+            extension_index: int = file_full_name.rfind(".")
             if extension_index != -1:
-                file = FileInfo(
-                    file_name[0:extension_index], file_name[extension_index:], False
-                )
+                file_name: str = file_full_name[0:extension_index]
+                file_extension: str = file_full_name[extension_index:]
+                file = FileInfo(file_name, file_extension, False)
             else:
-                file = FileInfo(file_name, "", False)
-            files.append(file)
+                file = FileInfo(file_full_name, "", False)
+            input_files.append(file)
+
         for dir_name in dirnames:
             file = FileInfo(dir_name, "*", True)
-            files.append(file)
+            input_files.append(file)
         break
-    return files
+    return input_files
 
 
-def exclude_sorting_files(files, excluded_files):
-    accepted_files = []
+def exclude_sorting_files(
+    files: FileInfo, excluded_files: FileInfo | SortedFolder
+) -> list[FileInfo]:
+    accepted_files: list[FileInfo] = []
+    file: FileInfo
     for file in files:
-        found = False
+        found: bool = False
         for excluded_file in excluded_files:
             if excluded_file.name == file.name:
                 found = True
@@ -44,7 +48,7 @@ def exclude_sorting_files(files, excluded_files):
     return accepted_files
 
 
-def create_output_folders(path, folders: SortedFolder):
+def create_output_folders(path: str, folders: list[SortedFolder]) -> None:
     for folder in folders:
         if not os.path.isdir(f"{path}\\{folder.name}"):
             print(f"Creating folder '{folder.name}'")
@@ -52,18 +56,16 @@ def create_output_folders(path, folders: SortedFolder):
     print()
 
 
-def isFileDuplicate(full_path, is_folder):
-    if is_folder:
-        return os.path.isdir(full_path)
-    else:
-        return os.path.isfile(full_path)
+def doesFileExist(full_path: str) -> bool:
+    return os.path.isdir(full_path) or os.path.isfile(full_path)
 
 
-def generate_unique_name(path, file, folder):
-    new_name = file.name
-    index = 1
-    while isFileDuplicate(
-        f"{path}\\{folder.name}\\{new_name}{file.get_extension()}", file.is_folder
+def generate_unique_name(path: str, file: FileInfo, folder: SortedFolder) -> str:
+    new_name: str = file.name
+    index: int = 1
+    while (
+        doesFileExist(f"{path}\\{folder.name}\\{new_name}{file.get_extension()}")
+        is True
     ):
         print(f"'{folder.name}\\{new_name}' already exists!")
         print("Renaming...")
@@ -71,21 +73,22 @@ def generate_unique_name(path, file, folder):
         index += 1
     if new_name != file.name:
         print(f"Renamed '{file.get_full_name()}' to '{new_name}{file.get_extension()}'")
+    print("-------------------------\n")
     return new_name
 
 
-def move_file(path, file, folder):
+def move_file(path: str, file: FileInfo, folder: SortedFolder) -> None:
     print(f"Trying to move '{file.get_full_name()}' to '{folder.name}'...\n")
-    new_name = generate_unique_name(path, file, folder)
+    new_name: str = generate_unique_name(path, file, folder)
     shutil.move(
         f"{path}\\{file.get_full_name()}",
         f"{path}\\{folder.name}\\{new_name}{file.get_extension()}",
     )
 
 
-def sort_files(path, files, folders):
+def sort_files(path: str, files: list[FileInfo], folders: list[SortedFolder]) -> None:
     for file in files:
-        found = False
+        found: bool = False
         for folder in folders:
             if file.extension in folder.associated_types:
                 found = True
@@ -95,14 +98,17 @@ def sort_files(path, files, folders):
             print(
                 f"No suitable folder found for '{file.name}' of type {file.extension}"
             )
+            print("-------------------------\n")
 
 
-def main():
+def main() -> None:
     # path = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
-    path = "..\\ExampleDesktop"
-    output_folders = get_sort_output_folders()
-    input_files = get_sorting_files(path)
+    path: str = "..\\ExampleDesktop"
+    output_folders: SortedFolder = []
+    output_folders = get_sorting_output_folders()
     create_output_folders(path, output_folders)
+    input_files: FileInfo = []
+    input_files = get_sorting_input_files(path)
     input_files = exclude_sorting_files(input_files, output_folders)
     sort_files(path, input_files, output_folders)
 
