@@ -21,7 +21,14 @@ class ConfigManager:
 
             sorted_folders.append(dir)
         return sorted_folders
-    
-    def serialize_config_json(sorted_folders:list[SortedFolder])-> None:
-        res = json.dumps(sorted_folders)
-        print(res)
+        
+    def save_config_to_file(path: str, sorted_folders:list[SortedFolder]) -> None:
+        with open(path, "w") as file:
+            file.write('[')
+            i: int
+            for i in range(len(sorted_folders)-1):
+                file.write(sorted_folders[i].to_json())
+                file.write(',\n')
+            file.write(sorted_folders[i+1].to_json())
+            file.write(']')
+            
