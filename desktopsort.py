@@ -3,15 +3,8 @@ from os import walk
 import shutil
 from classes.FileInfo import FileInfo
 from classes.SortedFolder import SortedFolder
-
-
-def get_sorting_output_folders() -> list[SortedFolder]:
-    sorted_folders: list[SortedFolder] = []
-    sorted_folders.append(SortedFolder("Games", [".exe"]))
-    sorted_folders.append(SortedFolder("Files", [".txt", ".pdf", ".html", "*"]))
-    sorted_folders.append(SortedFolder("Images", [".png", ".jpg", ".webp", ""]))
-    return sorted_folders
-
+from classes.ConfigManager import ConfigManager
+from dataclasses import asdict
 
 def get_sorting_input_files(path: str) -> list[FileInfo]:
     input_files: list[FileInfo] = []
@@ -41,7 +34,7 @@ def exclude_sorting_files(
     for file in files:
         found: bool = False
         for excluded_file in excluded_files:
-            if excluded_file.name == file.name:
+            if excluded_file.name == file.get_full_name():
                 found = True
         if not found:
             accepted_files.append(file)
@@ -104,14 +97,18 @@ def sort_files(path: str, files: list[FileInfo], folders: list[SortedFolder]) ->
 def main() -> None:
     # path = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
     path: str = "..\\ExampleDesktop"
-    output_folders: SortedFolder = []
-    output_folders = get_sorting_output_folders()
+
+    output_folders: list[SortedFolder] = []
+    config_manager: ConfigManager = ConfigManager
+    json_data_string = config_manager.load_config_from_file("./config.json")
+    output_folders = config_manager.deserialize_config_json(json_data_string)
     create_output_folders(path, output_folders)
+
     input_files: FileInfo = []
     input_files = get_sorting_input_files(path)
     input_files = exclude_sorting_files(input_files, output_folders)
+    
     sort_files(path, input_files, output_folders)
-
-
+    
 if __name__ == "__main__":
     main()

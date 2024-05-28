@@ -1,0 +1,19 @@
+[{
+    "name": "Games",
+    "associated_types": [
+        ".exe", ".bat"
+    ] 
+},
+{
+    "name": "Images",
+    "associated_types": [
+        ".png", ".jpg", ".jpeg", ".webp"
+    ]
+},
+{
+    "name": "Folders",
+    "associated_types": [
+        "*", ".txt"
+    ]
+}
+]
