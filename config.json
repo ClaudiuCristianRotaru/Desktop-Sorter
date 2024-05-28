@@ -1,19 +1,31 @@
 [{
     "name": "Games",
     "associated_types": [
-        ".exe", ".bat"
-    ] 
+        ".exe",
+        ".bat"
+    ]
 },
 {
     "name": "Images",
     "associated_types": [
-        ".png", ".jpg", ".jpeg", ".webp"
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp"
     ]
 },
 {
     "name": "Folders",
     "associated_types": [
-        "*", ".txt"
+        "*",
+        ".txt"
     ]
-}
-]
+},
+{
+    "name": "Music",
+    "associated_types": [
+        ".mp3",
+        ".wav",
+        ".opus"
+    ]
+}]

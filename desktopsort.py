@@ -4,7 +4,7 @@ import shutil
 from classes.FileInfo import FileInfo
 from classes.SortedFolder import SortedFolder
 from classes.ConfigManager import ConfigManager
-from dataclasses import asdict
+
 
 def get_sorting_input_files(path: str) -> list[FileInfo]:
     input_files: list[FileInfo] = []
@@ -102,13 +102,15 @@ def main() -> None:
     config_manager: ConfigManager = ConfigManager
     json_data_string = config_manager.load_config_from_file("./config.json")
     output_folders = config_manager.deserialize_config_json(json_data_string)
+
     create_output_folders(path, output_folders)
 
     input_files: FileInfo = []
     input_files = get_sorting_input_files(path)
     input_files = exclude_sorting_files(input_files, output_folders)
-    
+
     sort_files(path, input_files, output_folders)
-    
+
+
 if __name__ == "__main__":
     main()
