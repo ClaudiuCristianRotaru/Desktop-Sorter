@@ -29,5 +29,7 @@ class ConfigManager:
             for i in range(len(sorted_folders) - 1):
                 file.write(sorted_folders[i].to_json())
                 file.write(",\n")
-            file.write(sorted_folders[i + 1].to_json())
+            if len(sorted_folders) > 1:
+                file.write(sorted_folders[i + 1].to_json())
             file.write("]")
+            print(len(sorted_folders))
