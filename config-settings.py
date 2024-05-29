@@ -56,17 +56,21 @@ def main() -> None:
                 sorted_folder = create_sorting_folder()
                 sorting_folders.append(sorted_folder)
                 config_manager.save_config_to_file("./config.json", sorting_folders)
+                print("Created folder", sorted_folder.name)
             case 3:
                 folder_name = input("Input folder name to be removed: ")
                 for folder in sorting_folders:
                     if folder_name == folder.name:
                         sorting_folders.remove(folder)
+                        print("Removed folder", folder.name)
                         break
                 config_manager.save_config_to_file("./config.json", sorting_folders)
             case 4:
                 config_manager.save_config_to_file("./config.json", [])
+                print("Removed all folders")
             case 0:
                 isRunning = False
+                print("Stopping...")
             case _:
                 print("Not a valid option")
                 
