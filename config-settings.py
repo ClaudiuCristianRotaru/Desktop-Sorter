@@ -13,8 +13,9 @@ def print_sorting_folders(sorting_folders: list[SortedFolder]) -> None:
         print(folder.name, "containing", folder.associated_types, "type files")
     print("\nReminder: '*' type = folders\n")
 
+
 def print_menu_options() -> None:
-        print('''
+    print("""
 ------------MENU------------------------
     Options: 
         1. Display current config
@@ -22,13 +23,15 @@ def print_menu_options() -> None:
         3. Remove a sorting folder
         4. Clear all folders
         0. Exit
-----------------------------------------''')
-        
+----------------------------------------""")
+
+
 def create_sorting_folder() -> SortedFolder:
-    name:str = input("Folder name: ")
-    types:str = input("Folder associated types(separate by spaces): ")
+    name: str = input("Folder name: ")
+    types: str = input("Folder associated types(separate by spaces): ")
     types_array = types.split(" ")
     return SortedFolder(name, types_array)
+
 
 def main() -> None:
     config_manager: ConfigManager = ConfigManager
@@ -36,14 +39,13 @@ def main() -> None:
     sorting_folders: list[SortedFolder] = config_manager.deserialize_config_json(
         json_data_string
     )
-    
+
     config_manager: ConfigManager = ConfigManager
-    
+
     isRunning: bool = True
-    while (isRunning):
-        
+    while isRunning:
         print_menu_options()
-        
+
         try:
             option = int(input("Enter your option: "))
         except:
@@ -73,7 +75,7 @@ def main() -> None:
                 print("Stopping...")
             case _:
                 print("Not a valid option")
-                
-                
+
+
 if __name__ == "__main__":
     main()
