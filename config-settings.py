@@ -20,6 +20,7 @@ def print_menu_options() -> None:
         1. Display current config
         2. Add a new sorting folder
         3. Remove a sorting folder
+        4. Clear all folders
         0. Exit
 ----------------------------------------''')
         
@@ -62,6 +63,8 @@ def main() -> None:
                         sorting_folders.remove(folder)
                         break
                 config_manager.save_config_to_file("./config.json", sorting_folders)
+            case 4:
+                config_manager.save_config_to_file("./config.json", [])
             case 0:
                 isRunning = False
             case _:
