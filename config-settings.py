@@ -43,21 +43,19 @@ def main() -> None:
         
         print_menu_options()
         
-        option: int
-        option = int(input("Enter your option: "))
-        
+        try:
+            option = int(input("Enter your option: "))
+        except:
+            option = 9
+        clear_console()
         match option:
             case 1:
-                clear_console()
                 print_sorting_folders(sorting_folders)
             case 2:
-                clear_console()
                 sorted_folder = create_sorting_folder()
                 sorting_folders.append(sorted_folder)
                 config_manager.save_config_to_file("./config.json", sorting_folders)
-                clear_console
             case 3:
-                clear_console()
                 folder_name = input("Input folder name to be removed: ")
                 for folder in sorting_folders:
                     if folder_name == folder.name:
@@ -67,7 +65,6 @@ def main() -> None:
             case 0:
                 isRunning = False
             case _:
-                clear_console()
                 print("Not a valid option")
                 
                 
