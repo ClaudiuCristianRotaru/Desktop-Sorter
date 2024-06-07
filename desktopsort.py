@@ -4,7 +4,7 @@ import shutil
 from classes.FileInfo import FileInfo
 from classes.SortedFolder import SortedFolder
 from classes.ConfigManager import ConfigManager
-
+from classes.Config import Config
 
 def get_sorting_input_files(path: str) -> list[FileInfo]:
     input_files: list[FileInfo] = []
@@ -79,7 +79,8 @@ def move_file(path: str, file: FileInfo, folder: SortedFolder) -> None:
     )
 
 
-def sort_files(path: str, files: list[FileInfo], folders: list[SortedFolder]) -> None:
+def sort_files(path: str, files: list[FileInfo], folders: list[SortedFolder]) -> list[FileInfo]:
+    
     for file in files:
         found: bool = False
         for folder in folders:
@@ -95,21 +96,21 @@ def sort_files(path: str, files: list[FileInfo], folders: list[SortedFolder]) ->
 
 
 def main() -> None:
-    # path = desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
+    # path = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') + '\\'
     path: str = "..\\ExampleDesktop"
 
-    output_folders: list[SortedFolder] = []
     config_manager: ConfigManager = ConfigManager
     json_data_string = config_manager.load_config_from_file("./config.json")
-    output_folders = config_manager.deserialize_config_json(json_data_string)
+    config: Config = config_manager.deserialize_config_json(json_data_string)
 
-    create_output_folders(path, output_folders)
+    print(config)
+    create_output_folders(path, config.sorting_folders)
 
     input_files: FileInfo = []
     input_files = get_sorting_input_files(path)
-    input_files = exclude_sorting_files(input_files, output_folders)
+    input_files = exclude_sorting_files(input_files, config.sorting_folders)
 
-    sort_files(path, input_files, output_folders)
+    sort_files(path, input_files, config.sorting_folders)
 
 
 if __name__ == "__main__":
