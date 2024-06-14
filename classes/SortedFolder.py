@@ -11,5 +11,5 @@ class SortedFolder:
         self.name: str = name
         self.associated_types: list[str] = associated_types
 
-    def to_json(self):
-        return json.dumps(asdict(self), indent=4)
+    def jsonable(self):
+        return self.__dict__
