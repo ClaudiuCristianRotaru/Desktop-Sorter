@@ -1,31 +1,39 @@
-[{
-    "name": "Games",
-    "associated_types": [
-        ".exe",
-        ".bat"
-    ]
-},
 {
-    "name": "Images",
-    "associated_types": [
-        ".png",
-        ".jpg",
-        ".jpeg",
-        ".webp"
+    "default_folder": "Files",
+    "excluded_files": [
+        "donotmove.txt",
+        "desktop.ini"
+    ],
+    "sorting_folders": [
+        {
+            "name": "Games",
+            "associated_types": [
+                ".exe",
+                ".bat"
+            ]
+        },
+        {
+            "name": "Images",
+            "associated_types": [
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".webp"
+            ]
+        },
+        {
+            "name": "Folders",
+            "associated_types": [
+                "*"
+            ]
+        },
+        {
+            "name": "Music",
+            "associated_types": [
+                ".mp3",
+                ".wav",
+                ".opus"
+            ]
+        }
     ]
-},
-{
-    "name": "Folders",
-    "associated_types": [
-        "*",
-        ".txt"
-    ]
-},
-{
-    "name": "Music",
-    "associated_types": [
-        ".mp3",
-        ".wav",
-        ".opus"
-    ]
-}]
+}
